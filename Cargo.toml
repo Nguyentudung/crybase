@@ -1,6 +1,6 @@
 [package]
 name = "crydb"
-version = "0.0.1"
+version = "0.1.1"
 edition = "2024"
 description = "An experimental database engine built from scratch in Rust"
 license = "MIT"

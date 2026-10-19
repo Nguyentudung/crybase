@@ -6,16 +6,24 @@ use models::record::Record;
 mod crud;
 use crud::create::create;
 use crud::delete::delete;
+use crud::list::list;
 use crud::read::read;
 use crud::update::update;
 
-mod list;
-use list::list;
+mod storage;
+use storage::file::check_data_storage;
+use storage::load::load_record;
 
-fn main() {
+fn main() -> std::io::Result<()> {
+    let _path: String = String::from("cry_data/main.db");
     let mut records: Vec<Record> = Vec::new();
-    let mut index: u32 = 1;
+    let mut id: u32 = 1;
     let mut command = String::new();
+
+    // Kiểm tra và khởi tạo thư mục lưu trữ dữ liệu
+    check_data_storage(&_path)?;
+    // Load dữ liệu vào vec
+    load_record(&mut records, &mut id, &_path)?;
 
     while command.trim() != "exit" {
         print!("\x1b[34mcrydb > \x1b[0m");
@@ -30,8 +38,8 @@ fn main() {
 
         if command.trim() == "create" {
             println!("");
-            println!(" - id bản ghi: {}", index);
-            create(&mut records, &mut index);
+            println!(" - id bản ghi: {}", id);
+            create(&mut records, &mut id, &_path)?;
             println!("");
         } else if command.trim() == "read" {
             println!("");
@@ -55,4 +63,6 @@ fn main() {
             println!("\nLệnh không tồn tại!\n")
         }
     }
+
+    Ok(())
 }
