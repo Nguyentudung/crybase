@@ -47,11 +47,11 @@ fn main() -> std::io::Result<()> {
             println!("");
         } else if command.trim() == "update" {
             println!("");
-            update(&mut records);
+            update(&mut records, &_path)?;
             println!("");
         } else if command.trim() == "delete" {
             println!("");
-            delete(&mut records);
+            delete(&mut records, &_path)?;
             println!("");
         } else if command.trim() == "list" {
             println!("");
