@@ -1,66 +1,68 @@
 use std::io::{self, Write};
 
-mod models;
-use models::record::Record;
+use crybase::models::record::Record;
 
-mod crud;
-use crud::create::create;
-use crud::delete::delete;
-use crud::list::list;
-use crud::read::read;
-use crud::update::update;
+use crybase::crud::create::create;
+use crybase::crud::delete::delete;
+use crybase::crud::list::list;
+use crybase::crud::read::read;
+use crybase::crud::update::update;
 
-mod storage;
-use storage::file::check_data_storage;
-use storage::load::load_record;
+use crybase::db::connect::init_database;
+use crybase::db::records::get_all_records;
 
-fn main() -> std::io::Result<()> {
-    let _path: String = String::from("cry_data/main.db");
-    let mut records: Vec<Record> = Vec::new();
-    let mut id: u32 = 1;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let _path = String::from("cry_data/main.db");
     let mut command = String::new();
 
-    // Kiểm tra và khởi tạo thư mục lưu trữ dữ liệu
-    check_data_storage(&_path)?;
-    // Load dữ liệu vào vec
-    load_record(&mut records, &mut id, &_path)?;
+    // Khởi tạo database và lấy connection pool
+    let pool = init_database(&_path).await?;
 
-    while command.trim() != "exit" {
-        print!("\x1b[34mcrydb > \x1b[0m");
+    // Tải dữ liệu từ SQLite vào bộ nhớ
+    let records: Vec<Record> = get_all_records(&pool).await?;
 
-        io::stdout().flush().unwrap();
+    println!("Loaded {} records", records.len());
+
+    loop {
+        print!("\x1b[34mcrybase > \x1b[0m");
+        io::stdout().flush()?;
 
         command.clear();
+        io::stdin().read_line(&mut command)?;
 
-        io::stdin()
-            .read_line(&mut command)
-            .expect("Không đọc được lệnh!");
-
-        if command.trim() == "create" {
-            println!("");
-            println!(" - id bản ghi: {}", id);
-            create(&mut records, &mut id, &_path)?;
-            println!("");
-        } else if command.trim() == "read" {
-            println!("");
-            read(&records);
-            println!("");
-        } else if command.trim() == "update" {
-            println!("");
-            update(&mut records, &_path)?;
-            println!("");
-        } else if command.trim() == "delete" {
-            println!("");
-            delete(&mut records, &_path)?;
-            println!("");
-        } else if command.trim() == "list" {
-            println!("");
-            list(&records);
-            println!("");
-        } else if command.trim() == "exit" {
-            println!("\nTạm biệt\n");
-        } else {
-            println!("\nLệnh không tồn tại!\n")
+        match command.trim() {
+            "create" => {
+                println!();
+                // Chuyển create sang sử dụng &pool
+                println!();
+            }
+            "read" => {
+                println!();
+                read(&records);
+                println!();
+            }
+            "update" => {
+                println!();
+                // Chuyển update sang sử dụng &pool
+                println!();
+            }
+            "delete" => {
+                println!();
+                // Chuyển delete sang sử dụng &pool
+                println!();
+            }
+            "list" => {
+                println!();
+                list(&records);
+                println!();
+            }
+            "exit" => {
+                println!("\nTạm biệt\n");
+                break;
+            }
+            "" => {}
+            _ => println!("\nLệnh không tồn tại!\n"),
         }
     }
 

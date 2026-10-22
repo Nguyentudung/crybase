@@ -1,4 +1,5 @@
+#[derive(Debug, Clone, sqlx::FromRow)]
 pub struct Record {
-    pub id: u32,
+    pub id: String,
     pub content: String,
 }

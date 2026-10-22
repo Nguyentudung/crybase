@@ -1,1 +1,1 @@
-### An experimental database engine built from scratch in Rust
+### A lightweight backend platform built with Rust and SQLite
